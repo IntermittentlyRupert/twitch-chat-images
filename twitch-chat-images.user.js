@@ -2,8 +2,8 @@
 // @name           Twitch Chat Images
 // @namespace      https://github.com/IntermittentlyRupert/
 // @version        0.4.4
-// @updateURL      https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
-// @downloadURL    https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
+// @updateURL      https://intermittentlyrupert.github.io/twitch-chat-images/twitch-chat-images.user.js
+// @downloadURL    https://intermittentlyrupert.github.io/twitch-chat-images/twitch-chat-images.user.js
 // @description    Inlines images in Twitch chat.
 // @author         IntermittentlyRupert
 // @icon           https://www.google.com/s2/favicons?domain=twitch.tv
