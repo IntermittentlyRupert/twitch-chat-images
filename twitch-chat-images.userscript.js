@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Twitch Chat Images
 // @namespace      https://github.com/IntermittentlyRupert/
-// @version        0.1.0
+// @version        0.1.1
 // @updateURL      https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.userscript.js
 // @downloadURL    https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.userscript.js
 // @description    Inlines images in Twitch chat.
@@ -18,6 +18,7 @@
   const CHAT_LINK = ".chat-line__message a";
 
   const GIPHY_RE = /^https?:\/\/giphy\.com\/gifs\/(.*-)?([a-zA-Z0-9]+)$/gim;
+  const IMGUR_RE = /^https?:\/\/(www\.)?imgur.com\/([a-zA-Z0-9]+)$/gim;
   const YOUTUBE_RE =
     /^https?:\/\/(www\.)?(youtu\.be\/|youtube\.com\/watch\?v=)([^&?]+).*$/gim;
   const IMAGE_RE = /^https?:\/\/.+\.(jpe?g|png|gif|webp|av1)(\?.*)?$/gim;
@@ -152,6 +153,7 @@
     log("INFO", "processLink", `testing url "${url}"`);
     const matches = {
       giphy: url.match(GIPHY_RE),
+      imgur: url.match(IMGUR_RE),
       youtube: url.match(YOUTUBE_RE),
       image: url.match(IMAGE_RE),
     };
@@ -163,6 +165,11 @@
       const id = matches.giphy[2].split("-").pop();
       log("INFO", "processLink", "giphy link detected", id);
       imageUrl = `https://media1.giphy.com/media/${id}/giphy.gif`;
+    } else if (matches.imgur) {
+      const id = matches.imgur[2];
+      log("INFO", "processLink", "imgur link detected", id);
+      // doesn't matter what extension we use so long as it's an image format
+      imageUrl = `https://i.imgur.com/${id}.jpg`;
     } else if (matches.youtube) {
       const id = matches.youtube[3];
       log("INFO", "processLink", "youtube link detected", id);
