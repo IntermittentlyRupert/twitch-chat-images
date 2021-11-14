@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Twitch Chat Images
 // @namespace      https://github.com/IntermittentlyRupert/
-// @version        0.2.0
+// @version        0.3.0
 // @updateURL      https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @downloadURL    https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @description    Inlines images in Twitch chat.
@@ -14,6 +14,7 @@
   "use strict";
 
   const CHAT_CONTAINER = ".chat-scrollable-area__message-container";
+  const CHAT_SCROLL_PAUSED = ".chat-scrollable-area__message-container--paused";
   const CHAT_LINK = ".chat-line__message a";
 
   const GIPHY_RE = /^https?:\/\/giphy\.com\/gifs\/(.*-)?([a-zA-Z0-9]+)$/gim;
@@ -137,6 +138,50 @@
     });
   }
 
+  function scrollEnabled() {
+    return !document.querySelector(CHAT_SCROLL_PAUSED);
+  }
+
+  /** @param {Element} element */
+  function getScrollAncestor(element) {
+    let scrollContainer = element.parentElement;
+    while (
+      scrollContainer &&
+      getComputedStyle(scrollContainer).overflowY !== "scroll"
+    ) {
+      scrollContainer = scrollContainer.parentElement;
+    }
+    return scrollContainer;
+  }
+
+  /** @param {HTMLImageElement} img */
+  function scrollOnHeightChange(img) {
+    if (!scrollEnabled()) {
+      log("INFO", "scrollOnHeightChange", "suppressing scroll");
+      return;
+    }
+
+    const scrollContainer = getScrollAncestor(img);
+    if (!scrollContainer) {
+      log("WARN", "scrollOnHeightChange", "unable to find scroll container");
+      return;
+    }
+
+    const doScroll = () => {
+      log("INFO", "scrollOnHeightChange", "scrolling chat");
+      scrollContainer.scrollTop =
+        scrollContainer.scrollHeight - scrollContainer.clientHeight;
+    };
+
+    const ob = new ResizeObserver(doScroll);
+    ob.observe(img);
+
+    img.onload = () => {
+      doScroll();
+      ob.disconnect();
+    };
+  }
+
   /** @param {HTMLAnchorElement} link */
   async function processLink(link) {
     const url = link.textContent
@@ -180,6 +225,7 @@
     img.alt = link.textContent;
 
     link.appendChild(img);
+    scrollOnHeightChange(img);
   }
 
   /** @param {MutationRecord[]} mutationsList */
