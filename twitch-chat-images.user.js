@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Twitch Chat Images
 // @namespace      https://github.com/IntermittentlyRupert/
-// @version        0.4.0
+// @version        0.4.1
 // @updateURL      https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @downloadURL    https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @description    Inlines images in Twitch chat.
@@ -171,14 +171,17 @@
       log("INFO", "scrollOnHeightChange", "scrolling chat");
       scrollToBottom(scrollContainer);
     };
+    const cleanup = () => {
+      doScroll();
+      ob.disconnect();
+      log("INFO", "scrollOnHeightChange", "done");
+    };
 
     const ob = new ResizeObserver(doScroll);
     ob.observe(img);
 
-    img.onload = () => {
-      doScroll();
-      ob.disconnect();
-    };
+    img.onload = cleanup;
+    img.onerror = cleanup;
   }
 
   /** @param {HTMLAnchorElement} link */
