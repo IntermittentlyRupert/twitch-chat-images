@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Twitch Chat Images
 // @namespace      https://github.com/IntermittentlyRupert/
-// @version        0.3.1
+// @version        0.3.2
 // @updateURL      https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @downloadURL    https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @description    Inlines images in Twitch chat.
@@ -20,7 +20,7 @@
   const GIPHY_RE = /^https?:\/\/giphy\.com\/gifs\/(.*-)?([a-zA-Z0-9]+)$/gim;
   const IMGUR_RE = /^https?:\/\/(www\.)?imgur.com\/([a-zA-Z0-9]+)$/gim;
   const YOUTUBE_RE =
-    /^https?:\/\/(www\.)?(youtu\.be\/|youtube\.com\/watch\?v=)([^&?]+).*$/gim;
+    /^https?:\/\/(www\.)?(youtu\.be\/|youtube\.com\/watch\?v=)([a-zA-Z0-9\-_]+).*$/gim;
   const IMAGE_RE = /^https?:\/\/.+\.(jpe?g|png|gif|webp|av1)(\?.*)?$/gim;
 
   const OBSERVER_OPTIONS = { childList: true, subtree: true };
