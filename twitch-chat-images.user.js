@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Twitch Chat Images
 // @namespace      https://github.com/IntermittentlyRupert/
-// @version        0.4.1
+// @version        0.4.2
 // @updateURL      https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @downloadURL    https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @description    Inlines images in Twitch chat.
@@ -17,7 +17,8 @@
   const CHAT_SCROLL_PAUSED = ".chat-scrollable-area__message-container--paused";
   const CHAT_LINK = ".chat-line__message a";
 
-  const TWITTER_RE = /^https?:\/\/(www\.)?twitter.com\/([0-9]+)(\?.*)?$/gim;
+  const TWITTER_RE =
+    /^https?:\/\/(www\.)?twitter.com\/.+\/status\/([0-9]+)(\?.*)?$/gim;
   const GIPHY_RE = /^https?:\/\/giphy\.com\/gifs\/(.*-)?([a-zA-Z0-9]+)$/gim;
   const IMGUR_RE = /^https?:\/\/(www\.)?imgur.com\/([a-zA-Z0-9]+)$/gim;
   const YOUTUBE_RE =
