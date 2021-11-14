@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Twitch Chat Images
 // @namespace      https://github.com/IntermittentlyRupert/
-// @version        0.1.1
+// @version        0.2.0
 // @updateURL      https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @downloadURL    https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @description    Inlines images in Twitch chat.
@@ -13,8 +13,7 @@
 (function () {
   "use strict";
 
-  const CHAT_CONTAINER = ".chat-list--default";
-  const CHAT_POPOUT = ".chat-list--other";
+  const CHAT_CONTAINER = ".chat-scrollable-area__message-container";
   const CHAT_LINK = ".chat-line__message a";
 
   const GIPHY_RE = /^https?:\/\/giphy\.com\/gifs\/(.*-)?([a-zA-Z0-9]+)$/gim;
@@ -82,18 +81,12 @@
     return node.nodeType === Node.ELEMENT_NODE;
   }
 
-  function getChatContainer(scope = document) {
-    return (
-      scope.querySelector(CHAT_CONTAINER) || scope.querySelector(CHAT_POPOUT)
-    );
-  }
-
   /** @returns {Promise<Element>} */
   function detectContainerInsertion() {
     /** @type {MutationObserver | undefined} */
     let ob = undefined;
     return new Promise((resolve) => {
-      const existingContainer = getChatContainer();
+      const existingContainer = document.querySelector(CHAT_CONTAINER);
       if (existingContainer) {
         resolve(existingContainer);
         return;
@@ -104,7 +97,7 @@
           .filter((mutation) => mutation.addedNodes)
           .flatMap((mutation) => Array.from(mutation.addedNodes.values()))
           .filter(isElement)
-          .find((element) => getChatContainer(element));
+          .find((element) => element.querySelector(CHAT_CONTAINER));
         if (newContainer) {
           resolve(newContainer);
         }
@@ -121,7 +114,7 @@
     /** @type {MutationObserver | undefined} */
     let ob = undefined;
     return new Promise((resolve) => {
-      if (!getChatContainer()) {
+      if (!document.querySelector(CHAT_CONTAINER)) {
         resolve();
         return;
       }
@@ -131,7 +124,7 @@
           .filter((mutation) => mutation.removedNodes)
           .flatMap((mutation) => Array.from(mutation.removedNodes.values()))
           .filter(isElement)
-          .find((element) => getChatContainer(element));
+          .find((element) => element.querySelector(CHAT_CONTAINER));
         if (removedContainer) {
           resolve(removedContainer);
         }
