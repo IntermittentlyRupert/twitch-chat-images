@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Twitch Chat Images
 // @namespace      https://github.com/IntermittentlyRupert/
-// @version        0.4.3
+// @version        0.4.4
 // @updateURL      https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @downloadURL    https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @description    Inlines images in Twitch chat.
@@ -181,8 +181,41 @@
     const ob = new ResizeObserver(doScroll);
     ob.observe(img);
 
-    img.onload = cleanup;
-    img.onerror = cleanup;
+    img.addEventListener("load", cleanup);
+    img.addEventListener("error", cleanup);
+  }
+
+  /**
+   * Sometimes YouTube videos only have a subset of thumbnail sizes available.
+   * Handle falling back to other sizes.
+   *
+   * @param {HTMLImageElement} img
+   * @param {string[]} fallbacks
+   */
+  function handleYoutubeThumbnailFallbacks(img, fallbacks) {
+    const listener = () => {
+      if (img.naturalWidth !== 120) {
+        log("INFO", "handleYoutubeThumbnailFallbacks", "thumbnail loaded");
+        img.removeEventListener("load", listener);
+        return;
+      }
+      if (fallbacks.length === 0) {
+        log("ERROR", "handleYoutubeThumbnailFallbacks", "no more fallbacks");
+        img.removeEventListener("load", listener);
+        return;
+      }
+
+      const nextFallback = fallbacks.shift();
+      log(
+        "WARN",
+        "handleYoutubeThumbnailFallbacks",
+        "trying next",
+        nextFallback
+      );
+
+      img.src = nextFallback;
+    };
+    img.addEventListener("load", listener);
   }
 
   /** @param {HTMLAnchorElement} link */
@@ -226,6 +259,9 @@
       return;
     }
 
+    const img = document.createElement("img");
+    img.alt = link.textContent;
+
     /** @type {string} */
     let imageUrl;
     if (matches.giphy) {
@@ -241,6 +277,11 @@
       const id = matches.youtube[3];
       log("INFO", "processLink", "youtube link detected", id);
       imageUrl = `https://img.youtube.com/vi/${id}/maxresdefault.jpg`;
+      handleYoutubeThumbnailFallbacks(img, [
+        `https://img.youtube.com/vi/${id}/hqdefault.jpg`,
+        `https://img.youtube.com/vi/${id}/mqdefault.jpg`,
+        `https://img.youtube.com/vi/${id}/sddefault.jpg`,
+      ]);
     } else if (matches.image) {
       log("INFO", "processLink", "image link detected", url);
       imageUrl = url;
@@ -248,10 +289,7 @@
       log("INFO", "processLink", "nothing to embed");
       return;
     }
-
-    const img = document.createElement("img");
     img.src = imageUrl;
-    img.alt = link.textContent;
 
     link.appendChild(img);
 
