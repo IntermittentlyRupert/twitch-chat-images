@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Twitch Chat Images
 // @namespace      https://github.com/IntermittentlyRupert/
-// @version        0.3.0
+// @version        0.3.1
 // @updateURL      https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @downloadURL    https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @description    Inlines images in Twitch chat.
@@ -260,11 +260,6 @@
     ob.disconnect();
     safeWrapper("init", init)();
   }
-
-  const tw = document.createElement("script");
-  tw.type = "text/javascript";
-  tw.src = "https://platform.twitter.com/widgets.js";
-  document.body.appendChild(tw);
 
   safeWrapper("init", init)();
 })();
