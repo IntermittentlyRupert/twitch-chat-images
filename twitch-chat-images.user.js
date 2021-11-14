@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Twitch Chat Images
 // @namespace      https://github.com/IntermittentlyRupert/
-// @version        0.3.2
+// @version        0.4.0
 // @updateURL      https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @downloadURL    https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @description    Inlines images in Twitch chat.
@@ -17,6 +17,7 @@
   const CHAT_SCROLL_PAUSED = ".chat-scrollable-area__message-container--paused";
   const CHAT_LINK = ".chat-line__message a";
 
+  const TWITTER_RE = /^https?:\/\/(www\.)?twitter.com\/([0-9]+)(\?.*)?$/gim;
   const GIPHY_RE = /^https?:\/\/giphy\.com\/gifs\/(.*-)?([a-zA-Z0-9]+)$/gim;
   const IMGUR_RE = /^https?:\/\/(www\.)?imgur.com\/([a-zA-Z0-9]+)$/gim;
   const YOUTUBE_RE =
@@ -142,6 +143,10 @@
     return !document.querySelector(CHAT_SCROLL_PAUSED);
   }
 
+  function scrollToBottom(element) {
+    element.scrollTop = element.scrollHeight - element.clientHeight;
+  }
+
   /** @param {Element} element */
   function getScrollAncestor(element) {
     let scrollContainer = element.parentElement;
@@ -156,11 +161,6 @@
 
   /** @param {HTMLImageElement} img */
   function scrollOnHeightChange(img) {
-    if (!scrollEnabled()) {
-      log("INFO", "scrollOnHeightChange", "suppressing scroll");
-      return;
-    }
-
     const scrollContainer = getScrollAncestor(img);
     if (!scrollContainer) {
       log("WARN", "scrollOnHeightChange", "unable to find scroll container");
@@ -169,8 +169,7 @@
 
     const doScroll = () => {
       log("INFO", "scrollOnHeightChange", "scrolling chat");
-      scrollContainer.scrollTop =
-        scrollContainer.scrollHeight - scrollContainer.clientHeight;
+      scrollToBottom(scrollContainer);
     };
 
     const ob = new ResizeObserver(doScroll);
@@ -190,12 +189,38 @@
 
     log("INFO", "processLink", `testing url "${url}"`);
     const matches = {
+      twitter: url.match(TWITTER_RE),
       giphy: url.match(GIPHY_RE),
       imgur: url.match(IMGUR_RE),
       youtube: url.match(YOUTUBE_RE),
       image: url.match(IMAGE_RE),
     };
     log("DEBUG", "processLink", "regex matches", matches);
+
+    if (matches.twitter) {
+      const id = matches.twitter[2];
+      log("INFO", "processLink", "twitter link detected", id);
+
+      if (!twttr || !twttr.init) {
+        log("WARN", "processLink", "twitter js not loaded");
+        return;
+      }
+
+      const tweet = document.createElement("div");
+      link.appendChild(tweet);
+
+      await twttr.widgets.createTweet(id, tweet, {
+        theme: "dark",
+        conversation: "none",
+        cards: "hidden",
+        dnt: "true",
+      });
+
+      if (scrollEnabled()) {
+        scrollToBottom(tweet);
+      }
+      return;
+    }
 
     /** @type {string} */
     let imageUrl;
@@ -225,7 +250,10 @@
     img.alt = link.textContent;
 
     link.appendChild(img);
-    scrollOnHeightChange(img);
+
+    if (scrollEnabled()) {
+      scrollOnHeightChange(img);
+    }
   }
 
   /** @param {MutationRecord[]} mutationsList */
@@ -260,6 +288,10 @@
     ob.disconnect();
     safeWrapper("init", init)();
   }
+
+  const tw = document.createElement("script");
+  tw.src = "https://platform.twitter.com/widgets.js";
+  document.body.appendChild(tw);
 
   safeWrapper("init", init)();
 })();
