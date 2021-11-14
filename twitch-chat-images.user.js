@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Twitch Chat Images
 // @namespace      https://github.com/IntermittentlyRupert/
-// @version        0.4.4
+// @version        0.5.0
 // @updateURL      https://intermittentlyrupert.github.io/twitch-chat-images/twitch-chat-images.user.js
 // @downloadURL    https://intermittentlyrupert.github.io/twitch-chat-images/twitch-chat-images.user.js
 // @description    Inlines images in Twitch chat.
@@ -18,12 +18,12 @@
   const CHAT_LINK = ".chat-line__message a";
 
   const TWITTER_RE =
-    /^https?:\/\/(www\.)?twitter.com\/.+\/status\/([0-9]+)(\?.*)?$/im;
+    /^https?:\/\/(www\.)?twitter.com\/.+\/status\/([0-9]+)([\?\#].*)?$/im;
   const GIPHY_RE = /^https?:\/\/giphy\.com\/gifs\/(.*-)?([a-zA-Z0-9]+)$/im;
   const IMGUR_RE = /^https?:\/\/(www\.)?imgur.com\/([a-zA-Z0-9]+)$/im;
   const YOUTUBE_RE =
     /^https?:\/\/(www\.)?(youtu\.be\/|youtube\.com\/watch\?v=)([a-zA-Z0-9\-_]+).*$/im;
-  const IMAGE_RE = /^https?:\/\/.+\.(jpe?g|png|gif|webp|av1)(\?.*)?$/im;
+  const IMAGE_RE = /^https?:\/\/.+\.(jpe?g|png|gif|webp|av1)([\?\#].*)?$/im;
 
   const OBSERVER_OPTIONS = { childList: true, subtree: true };
 
@@ -185,6 +185,16 @@
     img.addEventListener("error", cleanup);
   }
 
+  /** @param {string} url */
+  async function hasImageMediaType(url) {
+    try {
+      const res = await fetch(url, { method: "HEAD" });
+      return res.ok && res.headers.get("content-type")?.startsWith("image/");
+    } catch (e) {
+      return false;
+    }
+  }
+
   /**
    * Sometimes YouTube videos only have a subset of thumbnail sizes available.
    * Handle falling back to other sizes.
@@ -284,6 +294,9 @@
       ]);
     } else if (matches.image) {
       log("INFO", "processLink", "image link detected", url);
+      imageUrl = url;
+    } else if (await hasImageMediaType(url)) {
+      log("INFO", "processLink", "response has image media-type", url);
       imageUrl = url;
     } else {
       log("INFO", "processLink", "nothing to embed");
