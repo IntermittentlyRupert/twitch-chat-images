@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Twitch Chat Images
 // @namespace      https://github.com/IntermittentlyRupert/
-// @version        0.4.2
+// @version        0.4.3
 // @updateURL      https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @downloadURL    https://raw.githubusercontent.com/IntermittentlyRupert/twitch-chat-images/main/twitch-chat-images.user.js
 // @description    Inlines images in Twitch chat.
@@ -18,12 +18,12 @@
   const CHAT_LINK = ".chat-line__message a";
 
   const TWITTER_RE =
-    /^https?:\/\/(www\.)?twitter.com\/.+\/status\/([0-9]+)(\?.*)?$/gim;
-  const GIPHY_RE = /^https?:\/\/giphy\.com\/gifs\/(.*-)?([a-zA-Z0-9]+)$/gim;
-  const IMGUR_RE = /^https?:\/\/(www\.)?imgur.com\/([a-zA-Z0-9]+)$/gim;
+    /^https?:\/\/(www\.)?twitter.com\/.+\/status\/([0-9]+)(\?.*)?$/im;
+  const GIPHY_RE = /^https?:\/\/giphy\.com\/gifs\/(.*-)?([a-zA-Z0-9]+)$/im;
+  const IMGUR_RE = /^https?:\/\/(www\.)?imgur.com\/([a-zA-Z0-9]+)$/im;
   const YOUTUBE_RE =
-    /^https?:\/\/(www\.)?(youtu\.be\/|youtube\.com\/watch\?v=)([a-zA-Z0-9\-_]+).*$/gim;
-  const IMAGE_RE = /^https?:\/\/.+\.(jpe?g|png|gif|webp|av1)(\?.*)?$/gim;
+    /^https?:\/\/(www\.)?(youtu\.be\/|youtube\.com\/watch\?v=)([a-zA-Z0-9\-_]+).*$/im;
+  const IMAGE_RE = /^https?:\/\/.+\.(jpe?g|png|gif|webp|av1)(\?.*)?$/im;
 
   const OBSERVER_OPTIONS = { childList: true, subtree: true };
 
