@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Twitch Chat Images
 // @namespace      https://github.com/IntermittentlyRupert/
-// @version        0.5.0
+// @version        0.6.0
 // @updateURL      https://intermittentlyrupert.github.io/twitch-chat-images/twitch-chat-images.user.js
 // @downloadURL    https://intermittentlyrupert.github.io/twitch-chat-images/twitch-chat-images.user.js
 // @description    Inlines images in Twitch chat.
@@ -26,6 +26,13 @@
   const IMAGE_RE = /^https?:\/\/.+\.(jpe?g|png|gif|webp|av1)([\?\#].*)?$/im;
 
   const OBSERVER_OPTIONS = { childList: true, subtree: true };
+
+  const IMAGE_STYLES = {
+    display: "block",
+    "margin-left": "auto",
+    "margin-right": "auto",
+    "max-height": "25vh",
+  };
 
   const LOG_FNS = {
     ERROR: console.error,
@@ -271,6 +278,10 @@
 
     const img = document.createElement("img");
     img.alt = link.textContent;
+
+    for (const property in IMAGE_STYLES) {
+      img.style[property] = IMAGE_STYLES[property];
+    }
 
     /** @type {string} */
     let imageUrl;
